@@ -19,6 +19,7 @@ db.sqlite3
 .pytest_cache/
 .coverage
 htmlcov/
+.php-preview-router.php
 
 # OS
 .DS_Store
