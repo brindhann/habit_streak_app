@@ -58,3 +58,29 @@ class HabitStreakTests(TestCase):
 
         self.assertEqual(self.habit.streak, 1)
         self.assertEqual(self.habit.last_completed, date.today())
+
+    def test_undo_completion_decreases_streak(self):
+        self.habit.complete()
+
+        self.habit.undo_completion()
+
+        self.habit.refresh_from_db()
+
+        self.assertEqual(self.habit.streak, 0)
+        self.assertIsNone(self.habit.last_completed)
+
+    def test_undo_completion_restores_previous_day(self):
+        yesterday = date.today() - timedelta(days=1)
+
+        self.habit.streak = 3
+        self.habit.last_completed = yesterday
+        self.habit.save()
+
+        self.habit.complete()
+        self.habit.undo_completion()
+
+        self.habit.refresh_from_db()
+
+        self.assertEqual(self.habit.streak, 3)
+        self.assertEqual(self.habit.last_completed, yesterday)
+

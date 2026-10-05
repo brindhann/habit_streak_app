@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Habit Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .add-form {
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 10px;
+            width: 60%;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .add-button {
+            background: #800020;
+            color: white;
+        }
+
+        .habit {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .habit-info {
+            flex: 1;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .complete-button {
+            background: #eee;
+        }
+
+        .delete-button {
+            background: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>My Habit Tracker</h1>
+
+    <!-- Add Habit -->
+    <form method="POST" action="{% url 'add_habit' %}" class="add-form">
+        {% csrf_token %}
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Enter a new habit"
+            required
+        >
+
+        <button type="submit" class="add-button">
+            Add Habit
+        </button>
+    </form>
+
+
+    <!-- Habit List -->
+    {% for habit in habits %}
+
+        <div class="habit">
+
+            <div class="habit-info">
+                <strong>{{ habit.name }}</strong>
+
+                <div>
+                    Streak: {{ habit.streak }} day{{ habit.streak|pluralize }} 🔥
+                </div>
+
+                <div>
+                    Last completed:
+                    {{ habit.last_completed|default:"Not completed yet" }}
+                </div>
+            </div>
+
+
+            <div class="actions">
+
+                <!-- Complete -->
+                {% if habit.last_completed == today %}
+
+                    <form method="POST"
+                        action="{% url 'undo_completion' habit.id %}">
+                        {% csrf_token %}
+
+                        <button type="submit" class="complete-button">
+                            Not Done
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <form method="POST"
+                        action="{% url 'complete_habit' habit.id %}">
+                        {% csrf_token %}
+
+                        <button type="submit" class="complete-button">
+                            Done
+                        </button>
+                    </form>
+
+                {% endif %}
+
+
+                <!-- Delete -->
+                <form method="POST"
+                      action="{% url 'delete_habit' habit.id %}">
+                    {% csrf_token %}
+
+                    <button type="submit" class="delete-button">
+                        Delete
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <p>No habits yet. Add your first habit above.</p>
+
+    {% endfor %}
+
+</body>
+</html>
